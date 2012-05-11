@@ -1,0 +1,6 @@
+def build(ctx):
+	asm_files = ctx.path.ant_glob("*.s")
+	ctx(
+		features = "asm asmstlib",
+		source = asm_files,
+		target = "kernel.a")
