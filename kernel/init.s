@@ -1,3 +1,5 @@
+.include "thread.i"
+
 .arm
 .section .text
 .align 2
