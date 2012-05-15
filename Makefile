@@ -20,6 +20,12 @@ $(warning CROSS_COMPILE not set, using default toolchain... Consider \
 	setting CROSS_COMPILE in Makefile.local.)
 endif
 
+ASFLAGS	+= -I$(INCLUDEDIR)
+ifdef	DEBUG
+ASFLAGS += -g
+LDFLAGS	+= -g
+endif
+
 .PHONY:	kernel
 kernel:	$(BUILDDIR)/kernel/kernel.a
 
@@ -32,7 +38,7 @@ $(BUILDDIR)/%/ :
 clean	:
 	$(RM) -rf $(BUILDDIR)/*
 
-$(BUILDDIR)/kernel/kernel.a	:	$(KERNELOBJECTS) | $(BUILDDIR)/kernel/
+$(BUILDDIR)/kernel/kernel.a	:	$(KERNELOBJECTS) | $(BUILDDIR)/kernel/ 
 	$(AR) -rcs $@ $^
 
 $(BUILDDIR)/kernel/%.o	:	$(SRCDIR)/kernel/%.s | $(BUILDDIR)/kernel/
