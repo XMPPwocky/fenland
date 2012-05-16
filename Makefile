@@ -12,7 +12,11 @@ kernel:	$(BUILDDIR)/kernel/kernel.elf
 -include Makefile.local
 
 # Platform-specific configuration
+ifdef PLATFORM
 include $(PLATFORMDIR)/$(PLATFORM)/Makefile
+else
+$(error PLATFORM not set)
+endif
 
 # Standard shell commands
 RM	= rm
@@ -32,7 +36,7 @@ NM	= $(CROSS_COMPILE)nm
 
 _TOOLCHAIN = 1
 else
-$(error No toolchain configured! Set CROSS_COMPILE?)
+$(error No toolchain configured! Set CROSS_COMPILE)
 endif
 endif
 
