@@ -1,6 +1,5 @@
 .arm
-.section .phys
-.global __start
-__start:
+.section .text
+.global __uboot_init
+__uboot_init:
 	bkpt
-.print "Hello world"

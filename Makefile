@@ -1,8 +1,12 @@
-# Directories
+VERSION		= 0.001
+
 SRCDIR		= src
 INCLUDEDIR	= include
 BUILDDIR	= build
 PLATFORMDIR	= platform
+
+.PHONY:	kernel
+kernel:	$(BUILDDIR)/kernel/kernel.elf
 
 # Local configuration
 -include Makefile.local
@@ -13,15 +17,20 @@ include $(PLATFORMDIR)/$(PLATFORM)/Makefile
 # Standard shell commands
 RM	= rm
 MKDIR	= mkdir
+TOUCH	= touch
 
 # Toolchain
-ifeq ($(origin AS),file)
+ifeq ($(origin _TOOLCHAIN),file)
 # Already defined in either Makefile.local or platform Makefile
 else
 ifdef CROSS_COMPILE
 AR	= $(CROSS_COMPILE)ar
 AS	= $(CROSS_COMPILE)as
 LD	= $(CROSS_COMPILE)ld
+OBJCOPY	= $(CROSS_COMPILE)objcopy
+NM	= $(CROSS_COMPILE)nm
+
+_TOOLCHAIN = 1
 else
 $(error No toolchain configured! Set CROSS_COMPILE?)
 endif
@@ -34,16 +43,16 @@ endif
 
 LDFLAGS += -T $(LINKERSCRIPT)
 
-KERNELSOURCES	= $(wildcard $(SRCDIR)/kernel/*.s)
+KERNELSOURCES	= $(wildcard $(SRCDIR)/kernel/*.s) \
+		  $(wildcard $(SRCDIR)/kernel/*/_.s)
+
 KERNELOBJECTS	= $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(KERNELSOURCES))
 
-.PHONY:	kernel
-kernel:	$(BUILDDIR)/kernel/kernel.elf
-
 # Autocreate BUILDDIR directory tree as needed
-.PRECIOUS: $(BUILDDIR)/%/
-$(BUILDDIR)/%/ : 
-	$(MKDIR) -p $(dir $@)
+.PRECIOUS: $(BUILDDIR)/%/.dir
+$(BUILDDIR)/%/.dir : 
+	@$(MKDIR) -p $(dir $@)
+	@$(TOUCH) $@
 
 # Cleaning up is simply removing the contents of BUILDDIR
 .PHONY:	clean
@@ -52,8 +61,11 @@ clean	:
 
 .SECONDEXPANSION:
 
-$(BUILDDIR)/kernel/kernel.elf	:	$(KERNELOBJECTS) | $$(dir $$@)
-	$(LD) $(LDFLAGS) -T $(LINKERSCRIPT) -o $@ $<
+$(BUILDDIR)/kernel/kernel.elf :	$(KERNELOBJECTS) | $$(dir $$@).dir
+	$(LD) $(LDFLAGS) -T $(LINKERSCRIPT) -o $@ $^
 
-$(BUILDDIR)/kernel/%.o	:	$(SRCDIR)/kernel/%.s | $$(dir $$@)
+$(BUILDDIR)/kernel/kernel.bin : $(BUILDDIR)/kernel/kernel.elf | $$(dir $$@).dir
+	$(OBJCOPY) -O binary $< $@
+
+$(BUILDDIR)/kernel/%.o :	$(SRCDIR)/kernel/%.s | $$(dir $$@).dir
 	$(AS) $(ASFLAGS) -o $@ $<
