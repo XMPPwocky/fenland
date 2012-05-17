@@ -5,8 +5,8 @@
 
 .arm
 .section .text
-.global init
 .org 0
+.global init
 /* Must be position-independent! */
 init:
 	cmp	r0, #0
@@ -54,7 +54,7 @@ $$parse_atag_mem:
 	bkpt	/* we don't support more than 1 memory region ATM */
 $$first_mem_region:
 	ldrd	r0, r1, [r4, #2] /* r0=size of region, r1=start of region */
-	adr	r2, $$memory
+	adr	r2, $$memory_info
 	strd	r0, r1, [r2]
 
 	adr	r0, $$num_mem_regions
@@ -67,9 +67,12 @@ $$first_mem_region:
 $$num_mem_regions:
 	.word	0
 
-$$memory:
+$$memory_info:
 	.word	0 /* size of memory */
 	.word	0 /* start address of memory */
 
 $$done_parsing_atags:
-	bkpt
+
+	adr	r0, $$memory_info
+	ldrd	r0, r1, [r0]
+	b	setup_mmu
