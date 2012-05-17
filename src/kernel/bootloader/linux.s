@@ -1,4 +1,7 @@
-/* Act like a Linux kernel image. */
+/* Act like a Linux kernel image.
+ * Obviously, this isn't a bootloader, but it's in src/kernel/bootloader
+ * because it performs the same functions any other 
+ * bootloader interface would. */
 
 .arm
 .section .text
