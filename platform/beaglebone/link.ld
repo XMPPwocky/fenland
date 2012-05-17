@@ -1,13 +1,11 @@
-ENTRY(__uboot_init);
+ENTRY(init);
 OUTPUT_FORMAT(elf32-littlearm);
 
-virtual_addr = 0xB0000000;
+machine_type = 3808;
 
 SECTIONS
 {
-	. = virtual_addr;
-	.stack : 
-		{ *(.stack) }
+	. = VIRTUAL_ADDRESS;
 	.text : 
 		{ *(.text) }
 	.data : 

@@ -1,13 +1,16 @@
 ifndef _MAKEINCLUDE_UBOOT
 _MAKEINCLUDE_UBOOT = 1
 
+ifndef MKIMAGE
 MKIMAGE	= mkimage
-
-
-ifdef CFG_UBOOT
-KERNELSOURCES += $(SRCDIR)/kernel/bootloader/uboot.s
 endif
 
-$(BUILDDIR)/kernel/kernel.itb : $(BUILDDIR)/kernel/kernel.bin
+KERNELSOURCES += $(SRCDIR)/kernel/bootloader/linux.s
+
+.PHONY: uImage
+uImage: $(BUILDDIR)/uImage
+
+$(BUILDDIR)/uImage : $(BUILDDIR)/kernel/kernel.bin
 	$(MKIMAGE) -f $(FIT_IMAGE) $@
+
 endif	
