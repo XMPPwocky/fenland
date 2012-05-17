@@ -47,9 +47,7 @@ endif
 
 LDFLAGS += -T $(LINKERSCRIPT)
 
-KERNELSOURCES	= $(wildcard $(SRCDIR)/kernel/*.s) \
-		  $(wildcard $(SRCDIR)/kernel/*/_.s)
-
+KERNELSOURCES	+= $(wildcard $(SRCDIR)/kernel/*.s)
 KERNELOBJECTS	= $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(KERNELSOURCES))
 
 # Autocreate BUILDDIR directory tree as needed

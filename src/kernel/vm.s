@@ -1,3 +1,5 @@
+.arm
+.section .data
 .align 14
 .global global_translation_tables
 global_translation_tables:
