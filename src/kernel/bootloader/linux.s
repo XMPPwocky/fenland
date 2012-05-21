@@ -14,30 +14,32 @@ init:
 $$r0_notok:
 	bkpt
 $$r0_ok:
+.ifdef	machine_type_required
 	ldr	r0, =machine_type
 	cmp	r1, r0
 	beq	$$machinetype_ok
 $$machinetype_notok:
 	bkpt
+.endif
 $$machinetype_ok:
 	/* begin parsing ATAGs */
 	/* get ATAG start address */
-	mov	r4, r1
+	mov	r4, r2
 	
-	ldr	r3, =0x5441000 /* handy offset */
+	ldr	r3, =0x54410000 /* handy offset */
 
 	mov	r6, #0
 $$atag_parse_loop:
 	/* r6 is tag size, r7 is tag type */
-	mov	r0, r6 /* used as non-overlapping index */
+	mov	r0, r6, lsl #2
 	ldrd	r6, r7, [r4, r0]!
 	
 	/* get tag type */
-	cmp	r0, #0 /* ATAG_NONE */
+	cmp	r7, #0 /* ATAG_NONE */
 	beq	$$parse_atag_none 
 
-	sub	r0, r0, r3 /* subtract 0x5441000 from the tag type */
-	cmp	r0, #2 /* ATAG_MEM */
+	sub	r7, r7, r3 /* subtract 0x5441000 from the tag type */
+	cmp	r7, #2 /* ATAG_MEM */
 	beq	$$parse_atag_mem
 
 	b	$$atag_parse_loop /* unrecognized tag */
@@ -53,7 +55,7 @@ $$parse_atag_mem:
 	beq	$$first_mem_region
 	bkpt	/* we don't support more than 1 memory region ATM */
 $$first_mem_region:
-	ldrd	r0, r1, [r4, #2] /* r0=size of region, r1=start of region */
+	ldrd	r0, r1, [r4, #8] /* r0=size of region, r1=start of region */
 	adr	r2, $$memory_info
 	strd	r0, r1, [r2]
 
@@ -74,5 +76,5 @@ $$memory_info:
 $$done_parsing_atags:
 
 	adr	r0, $$memory_info
-	ldrd	r0, r1, [r0]
+	ldmia	r0, {r0, r1}
 	b	setup_mmu

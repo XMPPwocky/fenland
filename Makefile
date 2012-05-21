@@ -45,7 +45,7 @@ ASFLAGS += -g
 LDFLAGS += -g
 endif
 
-LDFLAGS += -T $(LINKERSCRIPT)
+LDFLAGS +=
 
 KERNELSOURCES	+= $(wildcard $(SRCDIR)/kernel/*.s)
 KERNELOBJECTS	= $(patsubst $(SRCDIR)/%.s,$(BUILDDIR)/%.o,$(KERNELSOURCES))
